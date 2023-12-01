@@ -4,11 +4,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from DQN.MADQN import MADQN
-from PPO.MAPPO import MAPPO
 
 MODEL = 'DQN'
-ENV_NAME = 'ma_gym:Switch4-v0'
-N_EPISODES = 3_000
+ENV_NAME = 'ma_gym:Switch2-v1'
+N_EPISODES = 6_000
 LOG_PERIOD = 200
 RENDER = True
 TEST_EPISODES = 10
@@ -17,13 +16,7 @@ if __name__ == '__main__':
 
     # make environment
     env = gym.make(ENV_NAME)
-
-    # choose model
-    if MODEL == 'DQN':
-        MA_model = MADQN(env)
-    elif MODEL == 'PPO':
-        MA_model = MAPPO(env)
-
+    MA_model = MADQN(env)
     successful_run = False
 
     while not successful_run:

@@ -23,7 +23,7 @@ class MADQN:
         self.steps_per_episode = vdn_params['steps_per_episode']
 
         # initialize agents
-        self.agents = [DQNAgent(self.obs_dim, self.n_actions, **agent_params) for _ in range(env.n_agents)]
+        self.agents = [DQNAgent(self.obs_dim, self.n_actions, agent_idx, **agent_params) for agent_idx in range(env.n_agents)]
         self.burnin_steps = agent_params['burnin_steps']
 
         # value decomposition network
@@ -168,7 +168,8 @@ class MADQN:
 
             ep_step = 0
             target_reached = 0
-
+            
+            state = self.env.get_agent_obs()
             while not all(dones):
 
                 # select agent actions from observations
@@ -177,13 +178,14 @@ class MADQN:
                     # augment observation with steps in environment
                     full_obs = np.array(obs[i] + [ep_step / self.steps_per_episode], dtype=np.float32)
                     actions.append(agent.get_action(full_obs, explore=False))
-
                 obs, rewards, dones, info = self.env.step(actions)
 
                 target_reached += rewards.count(5.0)
 
                 if render:
                     self.env.render()
+                
+                time.sleep(1.0)
 
                 cum_rewards += sum(rewards)
                 ep_step += 1

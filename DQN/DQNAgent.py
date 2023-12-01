@@ -4,9 +4,10 @@ import torch
 from DQN.DQNet import DQN
 from DQN.ReplayBuffer import *
 
+from DQN.LLM import get_action_from_llm
 
 class DQNAgent:
-    def __init__(self, obs_dim: int, act_dim: int, **hyperparams):
+    def __init__(self, obs_dim: int, act_dim: int, agent_idx: int, **hyperparams):
 
         # neural net dimensions
         self.obs_dim = obs_dim
@@ -15,6 +16,11 @@ class DQNAgent:
         # initialize hyperparameters
         self._init_hyperparams(hyperparams)
         self.epsilon = self.epsilon_start
+        
+        self.agent_idx = agent_idx
+        
+        # llm_epsilon
+        self.llm_epsilon = 0.001
 
         # initialize replay buffer
         self.memory = ReplayBuffer(capacity=self.replay_buffer_capacity)
@@ -82,7 +88,11 @@ class DQNAgent:
         :return: action that maximizes q-value
         """
         if explore and random.random() < self.epsilon:
-            return random.randint(0, self.act_dim - 1)
+            # we can change this part into action query from LLM
+            if random.random() < self.llm_epsilon:
+                return get_action_from_llm(state, self.agent_idx)
+            else:
+                return random.randint(0, self.act_dim - 1)
         else:
             # convert to pytorch tensor
             this_state = torch.tensor(state, dtype=torch.float)
@@ -91,7 +101,6 @@ class DQNAgent:
             with torch.no_grad():
                 # return action that
                 this_q_vals = self.policy_net.forward(this_state)
-
                 return this_q_vals.max(0).indices.item()
 
 
