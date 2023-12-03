@@ -7,11 +7,14 @@ from DQN.ReplayBuffer import *
 from DQN.LLM import get_action_from_llm
 
 class DQNAgent:
-    def __init__(self, obs_dim: int, act_dim: int, agent_idx: int, **hyperparams):
+    def __init__(self, obs_dim: int, act_dim: int, agent_idx: int, game_name: str, **hyperparams):
 
         # neural net dimensions
         self.obs_dim = obs_dim
         self.act_dim = act_dim
+
+        # gmae name
+        self.game_name = game_name
 
         # initialize hyperparameters
         self._init_hyperparams(hyperparams)
@@ -20,7 +23,7 @@ class DQNAgent:
         self.agent_idx = agent_idx
         
         # llm_epsilon
-        self.llm_epsilon = 0.001
+        self.llm_epsilon = 1
 
         # initialize replay buffer
         self.memory = ReplayBuffer(capacity=self.replay_buffer_capacity)
@@ -90,7 +93,7 @@ class DQNAgent:
         if explore and random.random() < self.epsilon:
             # we can change this part into action query from LLM
             if random.random() < self.llm_epsilon:
-                return get_action_from_llm(state, self.agent_idx)
+                return get_action_from_llm(state, self.agent_idx, game_name=self.game_name)
             else:
                 return random.randint(0, self.act_dim - 1)
         else:

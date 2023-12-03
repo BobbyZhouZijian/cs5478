@@ -23,9 +23,9 @@ class MADQN:
         self.steps_per_episode = vdn_params['steps_per_episode']
 
         # initialize agents
-        self.agents = [DQNAgent(self.obs_dim, self.n_actions, agent_idx, **agent_params) for agent_idx in range(env.n_agents)]
+        self.agents = [DQNAgent(self.obs_dim, self.n_actions, agent_idx, self.env.spec.id, **agent_params) for agent_idx in range(env.n_agents)]
         self.burnin_steps = agent_params['burnin_steps']
-
+        
         # value decomposition network
         self.vd_net = VDNet(input_dim=self.batch_size, output_dim=self.n_actions)
         policy_net_params = []
